@@ -15,8 +15,8 @@ class ProductCoordiController(
 
     // 구현 1 API
     @GetMapping("/cheapest")
-    fun getLowestProducts(): CoconutResponse<CheapestCoordiResponse> {
-        val result = productUsecase.getCheapestCoordiByCategory()
+    fun getCheapestCoordi(): CoconutResponse<CheapestCoordiResponse> {
+        val result = productUsecase.getCheapestCoordi()
 
         return CheapestCoordiResponse(
             lowestProduct = result.map {
@@ -39,7 +39,7 @@ class ProductCoordiController(
 
     // 구현 2 API
     @GetMapping("/cheapest-brand")
-    fun getPriceByBrand(): CoconutResponse<CheapestSingleBrandCoordiResponse> {
+    fun getCheapestByBrand(): CoconutResponse<CheapestSingleBrandCoordiResponse> {
         val result = productUsecase.getCheapestCoordiByBrand()
         return CheapestSingleBrandCoordiResponse(
             cheapest = CheapestSingleBrandCoordiResponse.CheapestBrandResponse(

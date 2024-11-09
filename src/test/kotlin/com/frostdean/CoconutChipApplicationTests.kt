@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest
 class CoconutChipApplicationTests {
 
     @Test
-    fun contextLoads() {
+    fun test_contextLoads() {
 
     }
 

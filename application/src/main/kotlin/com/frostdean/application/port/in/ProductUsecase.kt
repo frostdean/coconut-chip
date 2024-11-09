@@ -1,7 +1,5 @@
 package com.frostdean.application.port.`in`
 
-import com.frostdean.application.ProductUsecaseImpl
-import com.frostdean.application.ProductUsecaseImpl.ProductDetail
 import com.frostdean.domain.Product
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -11,7 +9,7 @@ interface ProductUsecase {
     fun createProduct(command: ProductCreateCommand): ProductResult
     fun updateProduct(command: ProductUpdateCommand): ProductResult
     fun deleteProduct(productId: Long)
-    fun getCheapestCoordiByCategory(): List<ProductDetail>
+    fun getCheapestCoordi(): List<ProductDetail>
 
     data class ProductCreateCommand(
         val categoryId: Long,
@@ -50,8 +48,33 @@ interface ProductUsecase {
         }
     }
 
-    fun getCheapestCoordiByBrand(): ProductUsecaseImpl.SingleBrandCheapestCoordi
-    fun getCheapestAndMostExpensiveProductByCategory(categoryId: Long): ProductUsecaseImpl.CheapestAndMostExpensive
+    data class SingleBrandCheapestCoordi(
+        val brandId: Long,
+        val brandName: String,
+        val productList: List<ProductDetail>
+    )
+
+    data class ProductDetail(
+        val id: Long,
+        val categoryId: Long,
+        val categoryName: String,
+        val brandId: Long,
+        val brandName: String,
+        val name: String,
+        val price: BigDecimal,
+        val createdAt: LocalDateTime,
+        val updatedAt: LocalDateTime
+    )
+
+    fun getCheapestCoordiByBrand(): SingleBrandCheapestCoordi
+
+
+    data class CheapestAndMostExpensive(
+        val cheapest: ProductDetail,
+        val mostExpensive: ProductDetail
+    )
+
+    fun getCheapestAndMostExpensiveProductByCategory(categoryId: Long): CheapestAndMostExpensive
 }
 
 

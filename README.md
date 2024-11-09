@@ -26,13 +26,13 @@
   - interfaces : HTTP API를 정의한 모듈
   - application : 비즈니스 로직을 처리하는 모듈
   - domain : 도메인 모델을 정의한 모듈
-  - infrastructure : 외부 시스템과의 연동을 처리하는 모듈
+  - infrastructure : 외부 시스템과의 연동을 처리하는 모듈(여기서는 DB만 사용)
 
 
 - 모듈간 의존성은 다음과 같습니다
-  - interfaces <- application
-  - application <- domain
-  - infrastructure <- application, domain
+  - interfaces -> application
+  - application -> domain
+  - infrastructure -> application, domain
   - domain은 어디에도 의존하지 않습니다.
 
 ### 구현되지 못한 부분

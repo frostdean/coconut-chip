@@ -10,8 +10,6 @@ import com.frostdean.domain.Category
 import com.frostdean.domain.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
-import java.time.LocalDateTime
 
 @Service
 class ProductUsecaseImpl(
@@ -39,6 +37,9 @@ class ProductUsecaseImpl(
 
     @Transactional
     override fun updateProduct(command: ProductUsecase.ProductUpdateCommand): ProductUsecase.ProductResult {
+        val product = getProductPort.findById(command.productId)
+            ?: throw IllegalArgumentException("Product ${command.productId} was not found")
+
         command.categoryId?.let {
             if (getCategoryPort.existsById(it).not())
                 throw IllegalArgumentException("Category $it was not found")
@@ -48,8 +49,6 @@ class ProductUsecaseImpl(
                 throw IllegalArgumentException("Brand $it was not found")
         }
 
-        val product = getProductPort.findById(command.productId)
-            ?: throw IllegalArgumentException("Product ${command.productId} was not found")
 
         return product.update(
             categoryId = command.categoryId,
@@ -67,21 +66,21 @@ class ProductUsecaseImpl(
 
         val brandCategory = getProductPort.findByCategoryIdAndBrandId(product.categoryId, product.brandId)
         if (brandCategory.size < 2) {
-            throw RuntimeException("해당 브랜드의 카테고리 상품이 최소 1개는 존재해야 합니다")
+            throw IllegalArgumentException("해당 브랜드의 카테고리 상품이 최소 1개는 존재해야 합니다")
         }
 
         saveProductPort.deleteById(product.id)
 
     }
 
-    override fun getCheapestCoordiByCategory(): List<ProductDetail> {
+    override fun getCheapestCoordi(): List<ProductUsecase.ProductDetail> {
         val allCategories = getCategoryPort.findAll().associateBy { it.id }
         val allBrands = getBrandPort.findAll().associateBy { it.id }
         return getProductPort.findAll()
             .groupBy { it.categoryId }
             .mapValues { it.value.minBy { product -> product.price } }
             .map { (categoryId, product) ->
-                ProductDetail(
+                ProductUsecase.ProductDetail(
                     id = product.id,
                     categoryId = categoryId,
                     categoryName = allCategories[categoryId]?.name
@@ -97,7 +96,7 @@ class ProductUsecaseImpl(
             }
     }
 
-    override fun getCheapestCoordiByBrand(): SingleBrandCheapestCoordi {
+    override fun getCheapestCoordiByBrand(): ProductUsecase.SingleBrandCheapestCoordi {
         val allBrands = getBrandPort.findAll()
         val allCategories = getCategoryPort.findAll().associateBy { it.id }
 
@@ -105,18 +104,16 @@ class ProductUsecaseImpl(
             .minBy { it.productList.sumOf { product -> product.price } }
     }
 
-    override fun getCheapestAndMostExpensiveProductByCategory(categoryId: Long): CheapestAndMostExpensive {
-        if (getCategoryPort.existsById(categoryId).not()) {
-            throw IllegalArgumentException("Category $categoryId was not found")
-        }
+    override fun getCheapestAndMostExpensiveProductByCategory(categoryId: Long): ProductUsecase.CheapestAndMostExpensive {
+        val category = getCategoryPort.findById(categoryId)
+            ?: throw IllegalArgumentException("Category $categoryId was not found")
 
         val products = getProductPort.findByCategoryId(categoryId)
         val cheapestProduct = products.minBy { it.price }.let {
-            ProductDetail(
+            ProductUsecase.ProductDetail(
                 id = it.id,
                 categoryId = it.categoryId,
-                categoryName = getCategoryPort.findById(it.categoryId)?.name
-                    ?: throw IllegalArgumentException("Category ${it.categoryId} was not found"),
+                categoryName = category.name,
                 brandId = it.brandId,
                 brandName = getBrandPort.findById(it.brandId)?.name
                     ?: throw IllegalArgumentException("Brand ${it.brandId} was not found"),
@@ -127,11 +124,10 @@ class ProductUsecaseImpl(
             )
         }
         val mostExpensiveProduct = products.maxBy { it.price }.let {
-            ProductDetail(
+            ProductUsecase.ProductDetail(
                 id = it.id,
                 categoryId = it.categoryId,
-                categoryName = getCategoryPort.findById(it.categoryId)?.name
-                    ?: throw IllegalArgumentException("Category ${it.categoryId} was not found"),
+                categoryName = category.name,
                 brandId = it.brandId,
                 brandName = getBrandPort.findById(it.brandId)?.name
                     ?: throw IllegalArgumentException("Brand ${it.brandId} was not found"),
@@ -142,31 +138,27 @@ class ProductUsecaseImpl(
             )
         }
 
-        return CheapestAndMostExpensive(
+        return ProductUsecase.CheapestAndMostExpensive(
             cheapest = cheapestProduct,
             mostExpensive = mostExpensiveProduct
         )
     }
 
-    data class CheapestAndMostExpensive(
-        val cheapest: ProductDetail,
-        val mostExpensive: ProductDetail
-    )
 
     private fun getSingleBrandCheapestCoordi(
         brand: Brand,
         categoryMap: Map<Long, Category>,
-    ): SingleBrandCheapestCoordi {
+    ): ProductUsecase.SingleBrandCheapestCoordi {
         val brandProducts = getProductPort.findByBrandId(brand.id)
         val cheapestProducts = brandProducts.groupBy { it.categoryId }
             .mapValues { it.value.minBy { product -> product.price } }
             .values.toList()
 
-        return SingleBrandCheapestCoordi(
+        return ProductUsecase.SingleBrandCheapestCoordi(
             brandId = brand.id,
             brandName = brand.name,
             productList = cheapestProducts.map {
-                ProductDetail(
+                ProductUsecase.ProductDetail(
                     id = it.id,
                     categoryId = it.categoryId,
                     categoryName = categoryMap[it.categoryId]?.name
@@ -183,22 +175,5 @@ class ProductUsecaseImpl(
 
     }
 
-    data class SingleBrandCheapestCoordi(
-        val brandId: Long,
-        val brandName: String,
-        val productList: List<ProductDetail>
-    )
-
-    data class ProductDetail(
-        val id: Long,
-        val categoryId: Long,
-        val categoryName: String,
-        val brandId: Long,
-        val brandName: String,
-        val name: String,
-        val price: BigDecimal,
-        val createdAt: LocalDateTime,
-        val updatedAt: LocalDateTime
-    )
 
 }

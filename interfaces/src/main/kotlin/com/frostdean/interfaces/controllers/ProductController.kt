@@ -76,17 +76,17 @@ class ProductController(
 
     // 구현 3 API
     @GetMapping("/cheapest-and-most-expensive")
-    fun getCheapestAndMostExpensive(@RequestParam categoryId: Long): CoconutResponse<LowestAndHighestResponse> {
+    fun getCheapestAndMostExpensive(@RequestParam categoryId: Long): CoconutResponse<CheapestAndMostExpensiveResponse> {
         productUsecase.getCheapestAndMostExpensiveProductByCategory(categoryId).let {
-            return LowestAndHighestResponse(
+            return CheapestAndMostExpensiveResponse(
                 categoryName = it.cheapest.categoryName,
-                lowest = LowestAndHighestResponse.ProductResponse(
+                cheapest = CheapestAndMostExpensiveResponse.ProductResponse(
                     productId = it.cheapest.id,
                     productName = it.cheapest.name,
                     brandName = it.cheapest.brandName,
                     price = it.cheapest.price
                 ),
-                highest = LowestAndHighestResponse.ProductResponse(
+                mostExpensive = CheapestAndMostExpensiveResponse.ProductResponse(
                     productId = it.mostExpensive.id,
                     productName = it.mostExpensive.name,
                     brandName = it.mostExpensive.brandName,
@@ -120,10 +120,10 @@ class ProductController(
         val price: BigDecimal
     )
 
-    data class LowestAndHighestResponse(
+    data class CheapestAndMostExpensiveResponse(
         val categoryName: String,
-        val lowest: ProductResponse,
-        val highest: ProductResponse
+        val cheapest: ProductResponse,
+        val mostExpensive: ProductResponse
     ) {
         data class ProductResponse(
             val productId: Long,
