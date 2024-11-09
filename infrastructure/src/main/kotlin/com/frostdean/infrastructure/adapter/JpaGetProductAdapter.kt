@@ -22,6 +22,10 @@ class JpaGetProductAdapter(
         return jpaProductRepository.findByCategoryId(categoryId).map { it.toDomain() }
     }
 
+    override fun findByCategoryIdAndBrandId(categoryId: Long, brandId: Long): List<Product> {
+        return jpaProductRepository.findByCategoryIdAndBrandId(categoryId, brandId).map { it.toDomain() }
+    }
+
     override fun findAll(): List<Product> {
         return jpaProductRepository.findAll().map { it.toDomain() }
     }

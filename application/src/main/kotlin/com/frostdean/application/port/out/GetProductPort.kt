@@ -7,5 +7,6 @@ interface GetProductPort {
     fun findById(id: Long): Product?
     fun findByBrandId(brandId: Long): List<Product>
     fun findByCategoryId(categoryId: Long): List<Product>
+    fun findByCategoryIdAndBrandId(categoryId: Long, brandId: Long): List<Product>
     fun findAll(): List<Product>
 }

@@ -9,7 +9,7 @@ data class Brand(
     val updatedAt: LocalDateTime
 ) {
     init {
-        check(name.trim().isNotBlank()) { "브랜드명은 공백일 수 없습니다" }
+        require(name.trim().isNotBlank()) { "브랜드명은 공백일 수 없습니다" }
     }
 
     fun update(name: String): Brand {

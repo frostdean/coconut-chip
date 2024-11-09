@@ -17,4 +17,8 @@ class JpaSaveProductAdapter(
     override fun deleteById(id: Long) {
         jpaProductRepository.deleteById(id)
     }
+
+    override fun deleteByBrandId(brandId: Long) {
+        jpaProductRepository.deleteByBrandId(brandId)
+    }
 }

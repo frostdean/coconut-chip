@@ -13,8 +13,8 @@ data class Product(
     val updatedAt: LocalDateTime
 ) {
     init {
-        check(price >= BigDecimal.ZERO) { "가격은 0 보다 작을 수 없습니다" }
-        check(name.trim().isNotBlank()) { "상품명은 공백일 수 없습니다" }
+        require(price >= BigDecimal.ZERO) { "가격은 0 보다 작을 수 없습니다" }
+        require(name.trim().isNotBlank()) { "상품명은 공백일 수 없습니다" }
     }
 
     fun update(
@@ -23,7 +23,7 @@ data class Product(
         name: String? = null,
         price: BigDecimal? = null
     ): Product {
-        checkNotNull(categoryId ?: brandId ?: name ?: price) { "수정할 값이 없습니다" }
+        requireNotNull(categoryId ?: brandId ?: name ?: price) { "수정할 값이 없습니다" }
 
         return Product(
             id = this.id,
