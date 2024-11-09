@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: coconut-chip
+  jpa:
+    open-in-view: false
